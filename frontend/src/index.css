@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0a0a;
+  --color-surface: #111111;
+  --color-border: #222222;
+  --color-accent: #e8ff00;
+  --color-danger: #ff2d2d;
+  --color-muted: #888888;
+
+  --font-display: "Bebas Neue", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-body: "DM Sans", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white font-body selection:bg-accent selection:text-black antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display uppercase tracking-tight;
+  }
+
+  button {
+    @apply font-mono uppercase tracking-widest transition-all duration-200 cursor-pointer;
+  }
+
+  input {
+    @apply bg-transparent border-b border-border focus:border-accent outline-none py-2 font-mono;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border hover:bg-accent transition-colors;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom Swiper Styles */
+.swiper-button-next, .swiper-button-prev {
+  @apply !text-accent;
+}
+
+.swiper-pagination-bullet-active {
+  @apply !bg-accent;
+}
