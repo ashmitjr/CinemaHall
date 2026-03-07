@@ -1,25 +1,39 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import { PageTransition } from "../components/common/PageTransition";
-import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
 import { motion } from "framer-motion";
+import api from "../services/api";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../features/auth/authSlice";
+import { PageTransition } from "../components/common/PageTransition";
+
+const stagger = {
+  animate: { transition: { staggerChildren: 0.08 } },
+};
+
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 const Register = () => {
-  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleChange = (field) => (e) =>
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      await api.post("/auth/register", formData);
-      navigate("/login");
+      const { data } = await api.post("/auth/register", formData);
+      dispatch(setCredentials({ user: data.data.user, accessToken: data.data.accessToken }));
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "REGISTRATION FAILED");
     } finally {
@@ -29,76 +43,111 @@ const Register = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="w-full max-w-md">
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={{
-              animate: { transition: { staggerChildren: 0.1 } }
-            }}
-          >
-            <motion.h1
-              variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}
-              className="font-display text-8xl md:text-9xl mb-12 tracking-tighter uppercase text-center"
-            >
-              Join Us
-            </motion.h1>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-6">
+        <div className="w-full max-w-sm">
+          <motion.div initial="initial" animate="animate" variants={stagger}>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <motion.div variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}>
-                <Input
-                  label="Username"
+            {/* Header */}
+            <motion.div variants={fadeUp} className="mb-12 border-b border-[#222222] pb-8">
+              <p className="font-mono text-[9px] tracking-[0.4em] text-[#555555] mb-3">
+                CINEMA TRIAL / ACCESS
+              </p>
+              <h1 className="font-display text-7xl leading-none tracking-tight text-white uppercase">
+                CREATE<br />ACCOUNT
+              </h1>
+            </motion.div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-0">
+
+              {/* Name field */}
+              <motion.div variants={fadeUp} className="border border-[#222222] focus-within:border-[#e8ff00]"
+                style={{ transition: "border-color 0.05s linear" }}>
+                <label className="block font-mono text-[8px] tracking-[0.35em] text-[#555555] px-4 pt-3">
+                  FULL NAME
+                </label>
+                <input
                   type="text"
                   required
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  value={formData.name}
+                  onChange={handleChange("name")}
+                  placeholder="YOUR NAME"
+                  className="w-full bg-transparent px-4 pb-3 pt-1 font-mono text-sm tracking-widest text-white outline-none placeholder-[#333333]"
                 />
               </motion.div>
-              <motion.div variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}>
-                <Input
-                  label="Email Address"
+
+              {/* Email field */}
+              <motion.div variants={fadeUp} className="border border-t-0 border-[#222222] focus-within:border-[#e8ff00]"
+                style={{ transition: "border-color 0.05s linear" }}>
+                <label className="block font-mono text-[8px] tracking-[0.35em] text-[#555555] px-4 pt-3">
+                  EMAIL ADDRESS
+                </label>
+                <input
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={handleChange("email")}
+                  placeholder="YOUR@EMAIL.COM"
+                  className="w-full bg-transparent px-4 pb-3 pt-1 font-mono text-sm tracking-widest text-white outline-none placeholder-[#333333]"
                 />
               </motion.div>
-              <motion.div variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}>
-                <Input
-                  label="Password"
+
+              {/* Password field */}
+              <motion.div variants={fadeUp} className="border border-t-0 border-[#222222] focus-within:border-[#e8ff00]"
+                style={{ transition: "border-color 0.05s linear" }}>
+                <label className="block font-mono text-[8px] tracking-[0.35em] text-[#555555] px-4 pt-3">
+                  PASSWORD
+                </label>
+                <input
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={handleChange("password")}
+                  placeholder="MIN 8 CHARACTERS"
+                  className="w-full bg-transparent px-4 pb-3 pt-1 font-mono text-sm tracking-widest text-white outline-none placeholder-[#333333]"
                 />
               </motion.div>
 
+              {/* Error */}
               {error && (
-                <motion.p
-                  variants={{ initial: { opacity: 0 }, animate: { opacity: 1 } }}
-                  className="font-mono text-[10px] text-danger uppercase text-center"
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="border border-t-0 border-[#ff2d2d] px-4 py-3"
                 >
-                  {error}
-                </motion.p>
+                  <p className="font-mono text-[10px] tracking-[0.2em] text-[#ff2d2d]">
+                    ERROR / {error}
+                  </p>
+                </motion.div>
               )}
 
-              <motion.div variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}>
-                <Button type="submit" className="w-full py-5 text-xl" disabled={loading}>
-                  {loading ? "CREATING..." : "CREATE ACCOUNT"}
-                </Button>
-              </motion.div>
+              {/* Submit */}
+              <motion.button
+                variants={fadeUp}
+                type="submit"
+                disabled={loading}
+                whileTap={{ scale: 0.98 }}
+                className="mt-0 w-full bg-[#e8ff00] text-black font-mono text-[11px] tracking-[0.3em] py-5 uppercase disabled:opacity-50 hover:bg-white"
+                style={{ transition: "background-color 0.05s linear" }}
+              >
+                {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT —"}
+              </motion.button>
             </form>
 
-            <motion.p
-              variants={{ initial: { opacity: 0 }, animate: { opacity: 1 } }}
-              className="mt-12 text-center font-mono text-[10px] text-muted uppercase tracking-widest"
-            >
-              Already a member?{" "}
-              <Link to="/login" className="text-accent hover:underline">
-                Sign In
+            {/* Footer */}
+            <motion.div variants={fadeUp} className="mt-8 border-t border-[#1a1a1a] pt-6 flex items-center justify-between">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-[#444444]">
+                ALREADY A MEMBER?
+              </span>
+              <Link
+                to="/login"
+                className="font-mono text-[9px] tracking-[0.2em] text-[#e8ff00] hover:text-white border-b border-[#e8ff00] pb-0.5"
+                style={{ transition: "color 0.05s linear" }}
+              >
+                SIGN IN —
               </Link>
-            </motion.p>
+            </motion.div>
+
           </motion.div>
         </div>
       </div>
