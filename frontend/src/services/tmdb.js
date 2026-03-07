@@ -5,7 +5,7 @@ export const IMG_BASE = "https://image.tmdb.org/t/p";
 
 const tmdb = axios.create({
   baseURL: TMDB_BASE,
-  params: { api_key: import.meta.env.VITE_TMDB_API_KEY || "1a2913a190c70701da5c418c8fbcbbf3" },
+  params: { api_key: import.meta.env.VITE_TMDB_API_KEY },
 });
 
 export const getTrending     = ()              => tmdb.get("/trending/all/week");

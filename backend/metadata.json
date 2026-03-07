@@ -1,5 +1,0 @@
-{
-  "name": "Cinema Trial Backend",
-  "description": "Standalone Node.js + Express REST API for Cinema Trial, featuring JWT auth, favorites, watch history, and admin controls.",
-  "requestFramePermissions": []
-}
