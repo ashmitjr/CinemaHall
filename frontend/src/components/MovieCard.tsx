@@ -1,84 +1,119 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { IMG_BASE } from "../services/tmdb";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { IMG_BASE } from "../../services/tmdb";
 
-interface MovieCardProps {
-  item: any;
-  type?: "movie" | "tv";
-  key?: React.Key;
-}
+/* ─── Rating color ───────────────────────────────── */
+const ratingColor = (r) => {
+  if (!r) return "#333333";
+  if (r >= 7.5) return "#e8ff00";
+  if (r >= 5)   return "#f0f0f0";
+  return "#ff2d2d";
+};
 
-const MovieCard = ({ item, type = "movie" }: MovieCardProps) => {
-  const title = item.title || item.name;
+/* ─── MovieCard ──────────────────────────────────── */
+export const MovieCard = ({ item, type = "movie" }) => {
+  if (!item) return null;
+
+  const title       = item.title || item.name || "UNTITLED";
   const releaseDate = item.release_date || item.first_air_date;
-  const posterPath = item.poster_path;
-  const rating = item.vote_average?.toFixed(1);
+  const year        = releaseDate?.split("-")[0] || "—";
+  const rating      = item.vote_average;
+  const mediaType   = item.media_type || type;
+  const href        = `/movie/${mediaType}/${item.id}`;
 
   return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.2 }}
-      className="group border-[3px] border-white bg-black text-white overflow-hidden transition-all"
-    >
-      <Link to={`/movie/${item.id}?type=${item.media_type || type}`}>
+    <Link to={href} className="block group cursor-crosshair">
+      <motion.div
+        whileTap={{ scale: 0.97 }}
+        className="relative overflow-hidden"
+        style={{
+          border:     "1px solid #1a1a1a",
+          transition: "border-color 0.05s linear",
+        }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = "#e8ff00"}
+        onMouseLeave={e => e.currentTarget.style.borderColor = "#1a1a1a"}
+      >
 
-        {/* POSTER */}
-        <div className="relative aspect-[2/3] border-b-[3px] border-white overflow-hidden">
+        {/* ─ POSTER ─ */}
+        <div className="relative overflow-hidden bg-[#0e0e0e]"
+          style={{ aspectRatio: "2/3" }}>
 
-          {posterPath ? (
+          {item.poster_path ? (
             <img
-              src={`${IMG_BASE}/w500${posterPath}`}
+              src={`${IMG_BASE}/w342${item.poster_path}`}
               alt={title}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+              loading="lazy"
+              className="w-full h-full object-cover"
+              style={{
+                filter:     "grayscale(30%)",
+                transition: "filter 0.15s linear, transform 0.15s linear",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.filter    = "grayscale(0%)";
+                e.currentTarget.style.transform = "scale(1.04)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.filter    = "grayscale(30%)";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-center px-4 font-mono text-xs tracking-widest">
-              POSTER
-              <br />
-              NOT AVAILABLE
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+              <div className="w-8 h-8 border border-[#1e1e1e]" />
+              <p className="font-mono text-[10px] tracking-widest text-[#2a2a2a]">NO POSTER</p>
             </div>
           )}
 
-          {/* MEDIA TYPE TAG */}
-          <div className="absolute top-0 left-0 bg-white text-black text-[10px] font-mono px-2 py-1 tracking-widest border-r-[3px] border-b-[3px] border-black">
-            {(item.media_type || type).toUpperCase()}
+          {/* Media type stamp — top left */}
+          <div className="absolute top-0 left-0 z-10">
+            <span className="font-mono text-[9px] tracking-[0.4em] px-2 py-1 block"
+              style={{
+                backgroundColor: "#060606",
+                color:           "#444444",
+                borderRight:     "1px solid #1a1a1a",
+                borderBottom:    "1px solid #1a1a1a",
+              }}>
+              {mediaType === "tv" ? "TV" : "MV"}
+            </span>
           </div>
 
-          {/* RATING */}
-          {rating && (
-            <div className="absolute bottom-0 right-0 bg-white text-black px-2 py-1 text-[10px] font-mono flex items-center gap-1 border-l-[3px] border-t-[3px] border-black">
-              <Star size={10} fill="currentColor" />
-              {rating}
+          {/* Rating badge — top right */}
+          {rating > 0 && (
+            <div className="absolute top-0 right-0 z-10">
+              <span className="font-mono text-[10px] font-bold px-2 py-1 block"
+                style={{
+                  backgroundColor: "#060606",
+                  color:           ratingColor(rating),
+                  borderLeft:      "1px solid #1a1a1a",
+                  borderBottom:    "1px solid #1a1a1a",
+                }}>
+                {rating.toFixed(1)}
+              </span>
             </div>
           )}
+
         </div>
 
-        {/* INFO */}
-        <div className="p-4 flex flex-col gap-2">
-
-          <h3 className="font-mono text-sm md:text-base uppercase tracking-wide leading-tight line-clamp-2">
-            {title}
-          </h3>
-
-          <div className="flex justify-between text-[10px] font-mono tracking-widest opacity-70">
-
-            <span>
-              {releaseDate?.split("-")[0] || "UNKNOWN"}
-            </span>
-
-            <span>
-              ID:{item.id}
-            </span>
-
+        {/* ─ INFO BAR ─ */}
+        <div className="px-3 py-3" style={{ borderTop: "1px solid #141414" }}>
+          <p className="font-mono text-xs text-white tracking-wide leading-snug line-clamp-2 mb-1">
+            {title.toUpperCase()}
+          </p>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[10px] text-[#444444] tracking-widest">{year}</span>
+            {rating > 0 && (
+              <span className="font-mono text-[10px] tracking-wider"
+                style={{ color: ratingColor(rating) }}>
+                ★ {rating.toFixed(1)}
+              </span>
+            )}
           </div>
-
         </div>
 
-      </Link>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 };
 

@@ -8,6 +8,8 @@ const tmdb = axios.create({
   params: { api_key: import.meta.env.VITE_TMDB_API_KEY },
 });
 
+export const getNowPlaying = (page = 1) => tmdb.get("/movie/now_playing", { params: { page } });
+export const getReviews = (id, type) => tmdb.get(`/${type}/${id}/reviews`);
 export const getTrending     = ()              => tmdb.get("/trending/all/week");
 export const getPopularMovies = (page = 1)     => tmdb.get("/movie/popular", { params: { page } });
 export const getPopularTV    = (page = 1)      => tmdb.get("/tv/popular", { params: { page } });
