@@ -6,12 +6,10 @@ import { SkeletonCard } from "../components/common/SkeletonCard";
 import { PageTransition } from "../components/common/PageTransition";
 import { useDebounce } from "../hooks/useDebounce";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
-import { Badge } from "../components/ui/Badge";
 
 const Search = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
-  const initialType = searchParams.get("type") || "all";
 
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState([]);
@@ -40,33 +38,38 @@ const Search = () => {
 
   const fetchResults = async (pageNum, isNew = false) => {
     if (loading) return;
+
     setLoading(true);
+
     try {
       let res;
+
       if (selectedGenre) {
         res = await getByGenre("movie", selectedGenre, pageNum);
       } else if (debouncedQuery) {
         res = await searchMulti(debouncedQuery, pageNum);
       } else {
-        // Default popular if no query
-        res = await searchMulti("a", pageNum); 
+        res = await searchMulti("a", pageNum);
       }
 
-      const filtered = res.data.results.filter(i => i.media_type !== "person" || i.profile_path);
-      setResults(prev => isNew ? filtered : [...prev, ...filtered]);
+      const filtered = res.data.results.filter(
+        (i) => i.media_type !== "person" || i.profile_path
+      );
+
+      setResults((prev) => (isNew ? filtered : [...prev, ...filtered]));
       setHasMore(res.data.page < res.data.total_pages);
-      setLoading(false);
     } catch (error) {
       console.error("Search error:", error);
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   const loadMore = () => {
     if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchResults(nextPage);
+      const next = page + 1;
+      setPage(next);
+      fetchResults(next);
     }
   };
 
@@ -74,76 +77,120 @@ const Search = () => {
 
   return (
     <PageTransition>
-      <div className="pt-32 pb-24 px-6 md:px-12 min-h-screen">
-        <div className="container mx-auto">
-          {/* Search Bar */}
-          <div className="mb-12">
+      <div className="pt-32 pb-24 px-6 md:px-12 min-h-screen bg-black text-white overflow-x-hidden">
+
+        <div className="max-w-[1400px] mx-auto">
+
+          {/* HEADER */}
+          <div className="mb-16 border-b-4 border-white pb-10">
+            <h1 className="font-mono text-4xl md:text-6xl tracking-widest mb-8">
+              SEARCH ARCHIVE
+            </h1>
+
+            {/* SEARCH BAR */}
             <input
               type="text"
-              placeholder="SEARCH THE ARCHIVE..."
+              placeholder="TYPE TO SCAN DATABASE..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-transparent border-b-4 border-border py-8 font-display text-6xl md:text-8xl uppercase outline-none focus:border-accent transition-colors placeholder:text-border"
+              className="w-full bg-black border-4 border-white px-6 py-6 text-3xl md:text-5xl font-mono uppercase tracking-widest outline-none focus:bg-white focus:text-black transition-all"
             />
           </div>
 
-          {/* Genres */}
-          <div className="flex overflow-x-auto gap-4 pb-8 no-scrollbar mb-12">
+          {/* GENRE FILTER */}
+          <div className="flex flex-wrap gap-4 mb-16">
+
             <button
               onClick={() => setSelectedGenre(null)}
-              className={`flex-shrink-0 px-6 py-2 font-mono text-xs uppercase border transition-all ${
-                !selectedGenre ? "border-accent text-accent" : "border-border text-muted"
+              className={`px-6 py-2 border-2 font-mono text-xs tracking-widest transition ${
+                !selectedGenre
+                  ? "bg-white text-black border-white"
+                  : "border-white hover:bg-white hover:text-black"
               }`}
             >
-              All Genres
+              ALL
             </button>
+
             {genres.map((g) => (
               <button
                 key={g.id}
                 onClick={() => setSelectedGenre(g.id)}
-                className={`flex-shrink-0 px-6 py-2 font-mono text-xs uppercase border transition-all ${
-                  selectedGenre === g.id ? "border-accent text-accent" : "border-border text-muted"
+                className={`px-6 py-2 border-2 font-mono text-xs tracking-widest transition ${
+                  selectedGenre === g.id
+                    ? "bg-white text-black border-white"
+                    : "border-white hover:bg-white hover:text-black"
                 }`}
               >
-                {g.name}
+                {g.name.toUpperCase()}
               </button>
             ))}
+
           </div>
 
-          {/* Results */}
+          {/* RESULTS GRID */}
           {results.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {results.map((item, idx) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+
+              {results.map((item, idx) =>
                 item.media_type === "person" ? (
-                  <div key={`${item.id}-${idx}`} className="flex flex-col items-center gap-4 p-4 border border-border bg-surface">
-                    <div className="aspect-square w-full rounded-full overflow-hidden border border-border">
+
+                  /* PERSON CARD */
+                  <div
+                    key={`${item.id}-${idx}`}
+                    className="border-2 border-white p-5 flex flex-col gap-4 hover:bg-white hover:text-black transition"
+                  >
+                    <div className="aspect-square overflow-hidden border-2 border-white">
+
                       <img
-                        src={item.profile_path ? `https://image.tmdb.org/t/p/w185${item.profile_path}` : "/no-avatar.png"}
+                        src={
+                          item.profile_path
+                            ? `https://image.tmdb.org/t/p/w185${item.profile_path}`
+                            : "/no-avatar.png"
+                        }
                         alt={item.name}
                         className="w-full h-full object-cover grayscale"
                         referrerPolicy="no-referrer"
                       />
+
                     </div>
-                    <div className="text-center">
-                      <p className="font-display text-2xl uppercase leading-none mb-1">{item.name}</p>
-                      <p className="font-mono text-[10px] text-muted uppercase">{item.known_for_department}</p>
+
+                    <div>
+                      <p className="font-mono text-lg uppercase tracking-wide">
+                        {item.name}
+                      </p>
+
+                      <p className="text-[10px] font-mono opacity-70 tracking-widest">
+                        {item.known_for_department}
+                      </p>
                     </div>
                   </div>
+
                 ) : (
                   <MovieCard key={`${item.id}-${idx}`} item={item} />
                 )
-              ))}
-              {loading && Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+              )}
+
+              {loading &&
+                Array.from({ length: 10 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+
             </div>
           ) : !loading && debouncedQuery && (
-            <div className="h-64 flex items-center justify-center">
-              <h2 className="font-display text-6xl md:text-8xl text-border uppercase text-center">
-                No results for "{debouncedQuery}"
+
+            <div className="h-[40vh] flex items-center justify-center border-4 border-white">
+
+              <h2 className="text-3xl md:text-5xl font-mono uppercase tracking-widest text-center px-6">
+                NO FILES FOUND FOR "{debouncedQuery}"
               </h2>
+
             </div>
+
           )}
 
+          {/* INFINITE SCROLL SENTINEL */}
           <div ref={sentinelRef} className="h-20" />
+
         </div>
       </div>
     </PageTransition>
