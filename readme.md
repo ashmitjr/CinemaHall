@@ -2,6 +2,9 @@
 
 CinemaTrial is a **full-stack movie discovery platform** that allows users to explore movies and TV shows, search content in real time, watch trailers, and manage personal movie preferences such as favorites and watch history.
 
+<img width="1604" height="907" alt="image" src="https://github.com/user-attachments/assets/77d47d4c-6c36-4f85-8bab-adfb5adb0d41" />
+
+
 The platform integrates **The Movie Database (TMDB) API** for movie data and uses a **custom backend API** for authentication, favorites, watch history, and admin management.
 
 This project was built as a **technical qualification task for the Sheryians Tech Volunteer Program**, demonstrating the ability to:
