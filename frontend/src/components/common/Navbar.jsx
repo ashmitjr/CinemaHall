@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../../features/auth/authSlice";
+import api from "../../services/api";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,7 +39,10 @@ export const Navbar = () => {
     { name: "SEARCH", path: "/search" },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    const [p] = path.split("?");
+    return p === "/" ? location.pathname === "/" : location.pathname.startsWith(p);
+  };
 
   return (
     <>
@@ -140,7 +144,7 @@ export const Navbar = () => {
                   <AnimatePresence>
                     {isDropdownOpen && (
                       <>
-                        <div className="fixed inset-0 z-[-1]" onClick={() => setIsDropdownOpen(false)} />
+                        <div className="fixed inset-0 z-[10]" onClick={() => setIsDropdownOpen(false)} />
                         <motion.div
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -178,7 +182,7 @@ export const Navbar = () => {
                             </Link>
                           )}
                           <button
-                            onClick={() => { dispatch(logout()); setIsDropdownOpen(false); }}
+                            onClick={async () => { try { await api.post("/auth/logout"); } catch {} dispatch(logout()); setIsDropdownOpen(false); }}
                             className="w-full flex items-center justify-between px-4 py-3 font-mono text-[10px] tracking-[0.2em] text-[#ff2d2d] hover:bg-[#ff2d2d] hover:text-white transition-none text-left"
                           >
                             LOGOUT <span>X</span>

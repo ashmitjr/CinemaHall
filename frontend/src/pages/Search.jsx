@@ -258,7 +258,6 @@ const Search = () => {
                 onBlur={() => setFocused(false)}
                 placeholder="SCAN DATABASE..."
                 spellCheck={false}
-                style={{ caretColor: "#e8ff00" }}
                 className="w-full bg-transparent font-display uppercase text-white outline-none pb-5 placeholder-[#1e1e1e] tracking-wider"
                 style={{
                   fontSize: "clamp(2.8rem, 7vw, 7rem)",
