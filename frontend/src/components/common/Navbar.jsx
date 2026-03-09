@@ -150,7 +150,7 @@ export const Navbar = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -4 }}
                           transition={{ duration: 0.15, ease: "linear" }}
-                          className="absolute top-full right-0 w-56 bg-[#0a0a0a] border border-[#222222] border-t-[#e8ff00]"
+                          className="absolute top-full right-0 w-56 bg-[#0a0a0a] border border-[#222222] border-t-[#e8ff00] z-[20]"
                         >
                           {/* Dropdown header */}
                           <div className="px-4 py-3 border-b border-[#222222]">
