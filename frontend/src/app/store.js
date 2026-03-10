@@ -9,7 +9,7 @@ import watchHistoryReducer from "../features/watchHistory/watchHistorySlice";
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["user", "accessToken"],
+  whitelist: ["user", "accessToken", "isAuth"],
 };
 
 const rootReducer = combineReducers({
