@@ -1,26 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../../features/auth/authSlice";
 import api from "../../services/api";
+import { Search, X, Menu, ChevronDown, Film, Tv, TrendingUp, Star, User, Heart, Clock, Shield, LogOut } from "lucide-react";
 
 export const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled]     = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen]     = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery]   = useState("");
+  const searchRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const { isAuth, user } = useSelector((s) => s.auth);
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const dispatch  = useDispatch();
+  const location  = useLocation();
+  const navigate  = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setIsDropdownOpen(false);
+    setIsMenuOpen(false);
+    setIsSearchOpen(false);
+  }, [location.pathname]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleSearch = (e) => {
@@ -32,182 +53,170 @@ export const Navbar = () => {
     }
   };
 
-  const navLinks = [
-    { name: "TRENDING", path: "/" },
-    { name: "MOVIES", path: "/search?type=movie" },
-    { name: "TV SHOWS", path: "/search?type=tv" },
-    { name: "SEARCH", path: "/search" },
-  ];
+  const handleLogout = async () => {
+    try { await api.post("/auth/logout"); } catch {}
+    dispatch(logout());
+    setIsDropdownOpen(false);
+    navigate("/");
+  };
 
   const isActive = (path) => {
     const [p] = path.split("?");
     return p === "/" ? location.pathname === "/" : location.pathname.startsWith(p);
   };
 
+  const navLinks = [
+    { name: "Trending", path: "/", icon: TrendingUp },
+    { name: "Movies",   path: "/search?type=movie", icon: Film },
+    { name: "TV Shows", path: "/search?type=tv",    icon: Tv },
+  ];
+
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-[90] transition-none border-b border-[#222222] ${
-          isScrolled ? "bg-[#0a0a0a]" : "bg-[#0a0a0a]/95"
-        }`}
-      >
-        {/* Top ticker bar */}
-        <div className="border-b border-[#222222] overflow-hidden">
-          <div className="flex whitespace-nowrap animate-[ticker_20s_linear_infinite]">
-            {Array(6).fill(null).map((_, i) => (
-              <span key={i} className="font-mono text-[10px] tracking-[0.3em] text-[#333333] px-8 py-1 inline-block">
-                CINEMA TRIAL &nbsp;/&nbsp; DISCOVER &nbsp;/&nbsp; WATCH &nbsp;/&nbsp; EXPLORE &nbsp;/&nbsp; ARCHIVE &nbsp;/&nbsp;
-              </span>
-            ))}
-          </div>
-        </div>
+      <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+        isScrolled
+          ? "bg-[#080808]/98 backdrop-blur-md border-b border-white/10 shadow-[0_1px_0_rgba(255,255,255,0.05)]"
+          : "bg-gradient-to-b from-black/80 to-transparent border-b border-transparent"
+      }`}>
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex items-center gap-6">
 
-        <div className="px-6 flex items-stretch justify-between h-14">
-
-          {/* Logo — hard left, bordered right */}
-          <Link
-            to="/"
-            className="font-display text-[2rem] tracking-[0.05em] leading-none flex items-center pr-8 border-r border-[#222222] hover:text-[#e8ff00] transition-none group"
-          >
-            <span className="group-hover:text-[#e8ff00]">CINEMA</span>
-            <span className="text-[#e8ff00] ml-1">TRIAL</span>
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0 flex items-center gap-1 group">
+            <span className="font-mono text-white font-bold tracking-[0.15em] text-base uppercase group-hover:text-[#e8ff00] transition-colors duration-200">Cinema</span>
+            <span className="font-mono text-[#e8ff00] font-bold tracking-[0.15em] text-base uppercase">Trial</span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-stretch">
+          {/* Divider */}
+          <div className="hidden lg:block h-5 w-px bg-white/10" />
+
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`font-mono text-[10px] tracking-[0.25em] flex items-center px-6 border-r border-[#222222] transition-none relative
-                  ${isActive(link.path)
-                    ? "bg-[#e8ff00] text-black"
-                    : "text-[#888888] hover:text-white hover:bg-[#111111]"
-                  }`}
-              >
-                {isActive(link.path) && (
-                  <span className="mr-2 text-black font-bold">—</span>
-                )}
+              <Link key={link.name} to={link.path}
+                className={`flex items-center gap-2 px-4 py-2 rounded-sm font-mono text-[11px] tracking-[0.15em] uppercase transition-all duration-150 ${
+                  isActive(link.path)
+                    ? "bg-[#e8ff00] text-black font-bold"
+                    : "text-white/50 hover:text-white hover:bg-white/8"
+                }`}>
+                <link.icon size={12} />
                 {link.name}
               </Link>
             ))}
           </div>
 
-          {/* Right actions */}
-          <div className="flex items-stretch ml-auto">
+          {/* Right side */}
+          <div className="ml-auto flex items-center gap-2">
 
-            {/* Search */}
-            <div className="flex items-stretch border-l border-[#222222]">
+            {/* Search bar */}
+            <div className="flex items-center">
               <AnimatePresence>
                 {isSearchOpen && (
                   <motion.form
+                    ref={searchRef}
                     initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 280, opacity: 1 }}
+                    animate={{ width: 240, opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "linear" }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
                     onSubmit={handleSearch}
-                    className="overflow-hidden flex items-center border-r border-[#222222]"
+                    className="overflow-hidden mr-2"
                   >
                     <input
                       autoFocus
                       type="text"
-                      placeholder="TYPE TO SEARCH..."
+                      placeholder="Search films..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full h-full bg-[#111111] border-none px-4 font-mono text-[11px] tracking-widest text-white outline-none placeholder-[#444444]"
+                      className="w-full bg-white/8 border border-white/15 rounded-sm px-3 py-2 font-mono text-[11px] tracking-widest text-white outline-none placeholder-white/30 focus:border-[#e8ff00]/50 transition-colors"
                     />
                   </motion.form>
                 )}
               </AnimatePresence>
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className={`px-5 font-mono text-[10px] tracking-[0.2em] transition-none flex items-center gap-2
-                  ${isSearchOpen ? "bg-[#e8ff00] text-black" : "text-[#888888] hover:text-white hover:bg-[#111111]"}`}
-              >
-                {isSearchOpen ? "CLOSE" : "SEARCH"}
+                className={`w-9 h-9 flex items-center justify-center rounded-sm transition-all duration-150 ${
+                  isSearchOpen ? "bg-[#e8ff00] text-black" : "text-white/50 hover:text-white hover:bg-white/8"
+                }`}>
+                {isSearchOpen ? <X size={15} /> : <Search size={15} />}
               </button>
             </div>
 
             {/* Auth */}
-            <div className="hidden md:flex items-stretch border-l border-[#222222]">
-              {isAuth ? (
-                <div className="relative flex items-stretch">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`px-6 font-mono text-[10px] tracking-[0.2em] flex items-center gap-3 transition-none
-                      ${isDropdownOpen ? "bg-[#e8ff00] text-black" : "text-[#888888] hover:text-white hover:bg-[#111111]"}`}
-                  >
-                    <span className="w-2 h-2 bg-[#e8ff00] inline-block" />
-                    {user?.name?.toUpperCase() || "ACCOUNT"}
-                  </button>
+            {isAuth ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className={`flex items-center gap-2 pl-3 pr-2 py-2 rounded-sm font-mono text-[11px] tracking-[0.12em] uppercase transition-all duration-150 ${
+                    isDropdownOpen ? "bg-[#e8ff00] text-black" : "text-white/60 hover:text-white hover:bg-white/8"
+                  }`}>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isDropdownOpen ? "bg-black/20" : "bg-white/10"}`}>
+                    {user?.name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                  <span className="hidden md:block max-w-[120px] truncate">{user?.name?.toUpperCase()}</span>
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
 
-                  <AnimatePresence>
-                    {isDropdownOpen && (
-                      <>
-                        <div className="fixed inset-0 z-[10]" onClick={() => setIsDropdownOpen(false)} />
-                        <motion.div
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.15, ease: "linear" }}
-                          className="absolute top-full right-0 w-56 bg-[#0a0a0a] border border-[#222222] border-t-[#e8ff00] z-[20]"
-                        >
-                          {/* Dropdown header */}
-                          <div className="px-4 py-3 border-b border-[#222222]">
-                            <p className="font-mono text-[9px] tracking-[0.3em] text-[#555555]">LOGGED IN AS</p>
-                            <p className="font-mono text-[11px] tracking-widest text-white mt-1">{user?.name?.toUpperCase()}</p>
-                          </div>
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute top-[calc(100%+8px)] right-0 w-52 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/50 overflow-hidden"
+                    >
+                      {/* User info */}
+                      <div className="px-4 py-3 border-b border-white/8">
+                        <p className="font-mono text-[9px] tracking-[0.3em] text-white/30 uppercase">Signed in as</p>
+                        <p className="font-mono text-[11px] tracking-wider text-white mt-0.5 truncate">{user?.email}</p>
+                      </div>
 
-                          <Link
-                            to="/favorites"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center justify-between px-4 py-3 font-mono text-[10px] tracking-[0.2em] text-[#888888] hover:bg-[#111111] hover:text-white border-b border-[#1a1a1a] transition-none"
-                          >
-                            FAVORITES <span className="text-[#333333]">—</span>
+                      {/* Links */}
+                      <div className="py-1">
+                        <Link to="/favorites" onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-colors uppercase">
+                          <Heart size={12} /> Favorites
+                        </Link>
+                        <Link to="/history" onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-colors uppercase">
+                          <Clock size={12} /> History
+                        </Link>
+                        {user?.role === "admin" && (
+                          <Link to="/admin" onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-[#e8ff00] hover:bg-[#e8ff00]/10 transition-colors uppercase">
+                            <Shield size={12} /> Admin Panel
                           </Link>
-                          <Link
-                            to="/history"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center justify-between px-4 py-3 font-mono text-[10px] tracking-[0.2em] text-[#888888] hover:bg-[#111111] hover:text-white border-b border-[#1a1a1a] transition-none"
-                          >
-                            HISTORY <span className="text-[#333333]">—</span>
-                          </Link>
-                          {user?.role === "admin" && (
-                            <Link
-                              to="/admin"
-                              onClick={() => setIsDropdownOpen(false)}
-                              className="flex items-center justify-between px-4 py-3 font-mono text-[10px] tracking-[0.2em] text-[#e8ff00] hover:bg-[#e8ff00] hover:text-black border-b border-[#1a1a1a] transition-none"
-                            >
-                              ADMIN PANEL <span>*</span>
-                            </Link>
-                          )}
-                          <button
-                            onClick={async () => { try { await api.post("/auth/logout"); } catch {} dispatch(logout()); setIsDropdownOpen(false); }}
-                            className="w-full flex items-center justify-between px-4 py-3 font-mono text-[10px] tracking-[0.2em] text-[#ff2d2d] hover:bg-[#ff2d2d] hover:text-white transition-none text-left"
-                          >
-                            LOGOUT <span>X</span>
-                          </button>
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="px-6 font-mono text-[10px] tracking-[0.2em] text-[#888888] hover:bg-[#e8ff00] hover:text-black flex items-center transition-none"
-                >
-                  LOGIN
+                        )}
+                      </div>
+
+                      {/* Logout */}
+                      <div className="border-t border-white/8 py-1">
+                        <button onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors uppercase text-left">
+                          <LogOut size={12} /> Sign Out
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/login"
+                  className="px-4 py-2 font-mono text-[11px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors">
+                  Login
                 </Link>
-              )}
-            </div>
+                <Link to="/register"
+                  className="px-4 py-2 font-mono text-[11px] tracking-[0.15em] uppercase bg-[#e8ff00] text-black hover:bg-white transition-colors rounded-sm font-bold">
+                  Register
+                </Link>
+              </div>
+            )}
 
-            {/* Mobile hamburger */}
+            {/* Mobile menu button */}
             <button
-              className="lg:hidden px-5 border-l border-[#222222] font-mono text-[10px] tracking-widest text-[#888888] hover:text-white hover:bg-[#111111] transition-none"
               onClick={() => setIsMenuOpen(true)}
-            >
-              MENU
+              className="lg:hidden w-9 h-9 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/8 rounded-sm transition-all">
+              <Menu size={18} />
             </button>
           </div>
         </div>
@@ -218,89 +227,85 @@ export const Navbar = () => {
         {isMenuOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 bg-black/80 z-[100]"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110]"
             />
             <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.25, ease: "linear" }}
-              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-xs bg-[#0a0a0a] border-r-2 border-[#e8ff00] z-[110] flex flex-col"
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
+              className="fixed top-0 right-0 bottom-0 w-[80vw] max-w-xs bg-[#0a0a0a] border-l border-white/10 z-[120] flex flex-col"
             >
-              {/* Drawer header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-[#222222]">
-                <span className="font-display text-2xl tracking-tight">NAVIGATION</span>
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  className="font-mono text-[10px] tracking-widest text-[#888888] hover:text-white px-3 py-2 border border-[#222222] hover:border-white transition-none"
-                >
-                  CLOSE
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+                <span className="font-mono text-sm tracking-widest text-white/80 uppercase">Menu</span>
+                <button onClick={() => setIsMenuOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 rounded-sm transition-all">
+                  <X size={16} />
                 </button>
               </div>
 
-              {/* Nav links — large brutal typography */}
-              <div className="flex flex-col flex-1 overflow-y-auto">
-                {navLinks.map((link, i) => (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`font-display text-5xl px-6 py-5 border-b border-[#1a1a1a] flex items-center justify-between transition-none
-                      ${isActive(link.path) ? "text-[#e8ff00]" : "text-white hover:text-[#e8ff00] hover:bg-[#111111]"}`}
-                  >
+              {/* Nav links */}
+              <div className="flex-1 overflow-y-auto py-2">
+                {navLinks.map((link) => (
+                  <Link key={link.name} to={link.path} onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase transition-colors ${
+                      isActive(link.path) ? "text-[#e8ff00] bg-[#e8ff00]/8" : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}>
+                    <link.icon size={14} />
                     {link.name}
-                    <span className="font-mono text-[11px] tracking-widest text-[#333333]">0{i + 1}</span>
                   </Link>
                 ))}
 
-                <div className="border-t-2 border-[#222222] mt-auto">
-                  {isAuth ? (
-                    <>
-                      <div className="px-6 py-4 border-b border-[#1a1a1a]">
-                        <p className="font-mono text-[9px] tracking-[0.3em] text-[#555555]">ACCOUNT</p>
-                        <p className="font-mono text-sm tracking-widest text-white mt-1">{user?.name?.toUpperCase()}</p>
-                      </div>
-                      <Link to="/favorites" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-6 py-4 font-mono text-xs tracking-widest text-[#888888] hover:text-white border-b border-[#1a1a1a] transition-none">
-                        FAVORITES
-                      </Link>
-                      <Link to="/history" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-6 py-4 font-mono text-xs tracking-widest text-[#888888] hover:text-white border-b border-[#1a1a1a] transition-none">
-                        HISTORY
-                      </Link>
-                      {user?.role === "admin" && (
-                        <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between px-6 py-4 font-mono text-xs tracking-widest text-[#e8ff00] hover:bg-[#e8ff00] hover:text-black border-b border-[#1a1a1a] transition-none">
-                          ADMIN PANEL
-                        </Link>
-                      )}
-                      <button
-                        onClick={() => { dispatch(logout()); setIsMenuOpen(false); }}
-                        className="w-full text-left px-6 py-4 font-mono text-xs tracking-widest text-[#ff2d2d] hover:bg-[#ff2d2d] hover:text-white transition-none"
-                      >
-                        LOGOUT
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-between px-6 py-5 font-display text-4xl text-[#e8ff00] hover:bg-[#e8ff00] hover:text-black transition-none"
-                    >
-                      LOGIN
+                <div className="mx-4 my-3 h-px bg-white/8" />
+
+                {isAuth ? (
+                  <>
+                    <div className="px-5 py-3">
+                      <p className="font-mono text-[9px] tracking-[0.3em] text-white/30 uppercase mb-1">Account</p>
+                      <p className="font-mono text-xs text-white truncate">{user?.name}</p>
+                    </div>
+                    <Link to="/favorites" onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                      <Heart size={14} /> Favorites
                     </Link>
-                  )}
-                </div>
+                    <Link to="/history" onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                      <Clock size={14} /> History
+                    </Link>
+                    {user?.role === "admin" && (
+                      <Link to="/admin" onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase text-[#e8ff00] hover:bg-[#e8ff00]/8 transition-colors">
+                        <Shield size={14} /> Admin Panel
+                      </Link>
+                    )}
+                    <div className="mx-4 my-2 h-px bg-white/8" />
+                    <button onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase text-red-400 hover:bg-red-500/10 transition-colors text-left">
+                      <LogOut size={14} /> Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                      Login
+                    </Link>
+                    <Link to="/register" onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-3 mx-4 my-2 px-4 py-3 font-mono text-[11px] tracking-[0.2em] uppercase bg-[#e8ff00] text-black font-bold hover:bg-white transition-colors rounded-sm justify-center">
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed nav */}
-      <div className="h-[calc(theme(spacing.14)+1.5rem)]" />
+      {/* Spacer */}
+      <div className="h-16" />
     </>
   );
 };
