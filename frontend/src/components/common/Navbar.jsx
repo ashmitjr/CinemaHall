@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../../features/auth/authSlice";
 import api from "../../services/api";
 import { searchMulti, IMG_BASE } from "../../services/tmdb";
-import useDebounce from "../../hooks/useDebounce";
+import { useDebounce } from "../../hooks/useDebounce";
 import { Search, X, Menu, ChevronDown, Film, Tv, TrendingUp, Heart, Clock, Shield, LogOut, Star } from "lucide-react";
 
 export const Navbar = () => {
