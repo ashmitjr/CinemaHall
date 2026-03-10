@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,25 +6,34 @@ import { logout } from "../../features/auth/authSlice";
 import api from "../../services/api";
 import { searchMulti, IMG_BASE } from "../../services/tmdb";
 import { useDebounce } from "../../hooks/useDebounce";
-import { Search, X, Menu, ChevronDown, Film, Tv, TrendingUp, Heart, Clock, Shield, LogOut, Star } from "lucide-react";
+import { useTheme } from "../../hooks/useTheme";
+import { THEMES } from "../../utils/themes";
+import { Search, X, Menu, ChevronDown, Film, Tv, TrendingUp, Heart, Clock, Shield, LogOut, Palette } from "lucide-react";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled]         = useState(false);
   const [isMenuOpen, setIsMenuOpen]         = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen]     = useState(false);
+  const [isThemeOpen, setIsThemeOpen]       = useState(false);
   const [searchQuery, setSearchQuery]       = useState("");
   const [searchResults, setSearchResults]   = useState([]);
   const [searchLoading, setSearchLoading]   = useState(false);
-  const dropdownRef  = useRef(null);
-  const searchRef    = useRef(null);
-  const searchInput  = useRef(null);
 
-  const { isAuth, user } = useSelector((s) => s.auth);
+  const dropdownRef = useRef(null);
+  const searchRef   = useRef(null);
+  const themeRef    = useRef(null);
+  const searchInput = useRef(null);
+
+  const { isAuth, user }          = useSelector((s) => s.auth);
+  const { activeTheme, switchTheme } = useTheme();
   const dispatch  = useDispatch();
   const location  = useLocation();
   const navigate  = useNavigate();
   const debouncedQuery = useDebounce(searchQuery, 350);
+
+  const accent     = THEMES[activeTheme]?.accent || "#E50914";
+  const accentText = THEMES[activeTheme]?.accentText || "#ffffff";
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 20);
@@ -36,6 +45,7 @@ export const Navbar = () => {
     setIsDropdownOpen(false);
     setIsMenuOpen(false);
     setIsSearchOpen(false);
+    setIsThemeOpen(false);
     setSearchQuery("");
     setSearchResults([]);
   }, [location.pathname]);
@@ -43,11 +53,8 @@ export const Navbar = () => {
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsDropdownOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setIsSearchOpen(false);
-        setSearchQuery("");
-        setSearchResults([]);
-      }
+      if (searchRef.current && !searchRef.current.contains(e.target)) { setIsSearchOpen(false); setSearchQuery(""); setSearchResults([]); }
+      if (themeRef.current && !themeRef.current.contains(e.target)) setIsThemeOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -59,7 +66,7 @@ export const Navbar = () => {
       setSearchLoading(true);
       try {
         const res = await searchMulti(debouncedQuery, 1);
-        setSearchResults(res.data.results.slice(0, 6));
+        setSearchResults(res.data.results.filter(r => r.media_type !== "person").slice(0, 6));
       } catch { setSearchResults([]); }
       finally { setSearchLoading(false); }
     };
@@ -78,7 +85,7 @@ export const Navbar = () => {
   };
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
@@ -93,6 +100,7 @@ export const Navbar = () => {
     setIsSearchOpen(false);
     setSearchQuery("");
     setSearchResults([]);
+    setIsMenuOpen(false);
   };
 
   const isActive = (path) => {
@@ -109,32 +117,75 @@ export const Navbar = () => {
     { name: "TV Shows", path: "/search?type=tv",    icon: Tv },
   ];
 
+  const ThemePicker = () => (
+    <div className="relative" ref={themeRef}>
+      <button
+        onClick={() => setIsThemeOpen(!isThemeOpen)}
+        className="w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-150 text-white/50 hover:text-white hover:bg-white/8"
+        title="Change theme"
+      >
+        <Palette size={14} />
+      </button>
+      <AnimatePresence>
+        {isThemeOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-[calc(100%+8px)] right-0 w-48 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/60 overflow-hidden z-[200]"
+          >
+            <div className="px-3 py-2 border-b border-white/8">
+              <p className="font-mono text-[9px] tracking-[0.3em] text-white/30 uppercase">Color Theme</p>
+            </div>
+            <div className="py-1">
+              {Object.entries(THEMES).map(([key, theme]) => (
+                <button
+                  key={key}
+                  onClick={() => { switchTheme(key); setIsThemeOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-white/5 ${activeTheme === key ? "bg-white/8" : ""}`}
+                >
+                  <div className="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-white/10" style={{ backgroundColor: theme.accent }} />
+                  <span className="font-mono text-[10px] tracking-[0.15em] text-white/70 uppercase">{theme.name}</span>
+                  {activeTheme === key && <span className="ml-auto font-mono text-[8px] text-white/30">✓</span>}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
         isScrolled
-          ? "bg-[#080808]/98 backdrop-blur-md border-b border-white/8 shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
-          : "bg-gradient-to-b from-black/70 to-transparent border-b border-transparent"
+          ? "bg-[#080808]/98 backdrop-blur-md border-b border-white/8 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+          : "bg-gradient-to-b from-black/80 to-transparent border-b border-transparent"
       }`}>
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-1 group mr-2">
-            <span className="font-mono text-white font-bold tracking-[0.12em] text-sm uppercase group-hover:text-[#E50914] transition-colors duration-200">Cinema</span>
-            <span className="font-mono text-[#E50914] font-bold tracking-[0.12em] text-sm uppercase">Trial</span>
+            <span className="font-mono text-white font-bold tracking-[0.12em] text-sm uppercase transition-colors duration-200 group-hover:opacity-80">Cinema</span>
+            <span className="font-mono font-bold tracking-[0.12em] text-sm uppercase transition-colors duration-200" style={{ color: accent }}>Trial</span>
           </Link>
 
           <div className="hidden lg:block h-5 w-px bg-white/10 mx-1" />
 
-          {/* Desktop Nav Links */}
+          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.path}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.15em] uppercase transition-all duration-150 ${
-                  isActive(link.path)
-                    ? "bg-[#E50914] text-black font-bold"
-                    : "text-white/50 hover:text-white hover:bg-white/8"
-                }`}>
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.15em] uppercase transition-all duration-150"
+                style={isActive(link.path)
+                  ? { backgroundColor: accent, color: accentText, fontWeight: "700" }
+                  : {}
+                }
+                onMouseEnter={e => { if (!isActive(link.path)) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={e => { if (!isActive(link.path)) { e.currentTarget.style.backgroundColor = ""; e.currentTarget.style.color = ""; } }}
+              >
                 <link.icon size={11} />
                 {link.name}
               </Link>
@@ -144,9 +195,14 @@ export const Navbar = () => {
           {/* Right side */}
           <div className="ml-auto flex items-center gap-2">
 
+            {/* Theme picker — desktop */}
+            <div className="hidden md:block">
+              <ThemePicker />
+            </div>
+
             {/* Search */}
             <div className="relative" ref={searchRef}>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center">
                 <AnimatePresence>
                   {isSearchOpen && (
                     <motion.form
@@ -155,7 +211,7 @@ export const Navbar = () => {
                       exit={{ width: 0, opacity: 0 }}
                       transition={{ duration: 0.2, ease: "easeInOut" }}
                       onSubmit={handleSearchSubmit}
-                      className="overflow-hidden"
+                      className="overflow-hidden mr-1"
                     >
                       <input
                         ref={searchInput}
@@ -163,21 +219,24 @@ export const Navbar = () => {
                         placeholder="Search films, shows..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/8 border border-white/15 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#E50914]/40 transition-colors rounded-sm"
+                        className="w-full bg-white/8 border border-white/15 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 rounded-sm transition-colors"
+                        style={{ '--tw-ring-color': accent }}
                       />
                     </motion.form>
                   )}
                 </AnimatePresence>
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-150 flex-shrink-0 ${
-                    isSearchOpen ? "bg-[#E50914] text-black" : "text-white/50 hover:text-white hover:bg-white/8"
-                  }`}>
-                  {isSearchOpen ? <X size={14} /> : <Search size={14} />}
+                  className="w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-150 flex-shrink-0"
+                  style={isSearchOpen ? { backgroundColor: accent, color: accentText } : {}}
+                  onMouseEnter={e => { if (!isSearchOpen) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#fff"; }}}
+                  onMouseLeave={e => { if (!isSearchOpen) { e.currentTarget.style.backgroundColor = ""; e.currentTarget.style.color = ""; }}}
+                >
+                  {isSearchOpen ? <X size={14} /> : <Search size={14} style={{ color: isSearchOpen ? accentText : "" }} />}
                 </button>
               </div>
 
-              {/* Real-time search dropdown */}
+              {/* Real-time results */}
               <AnimatePresence>
                 {isSearchOpen && (searchResults.length > 0 || searchLoading || searchQuery.trim()) && (
                   <motion.div
@@ -185,48 +244,36 @@ export const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-[calc(100%+10px)] right-0 w-80 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/60 overflow-hidden"
+                    className="absolute top-[calc(100%+10px)] right-0 w-80 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/60 overflow-hidden z-[200]"
                   >
-                    {searchLoading && (
-                      <div className="px-4 py-3 font-mono text-[10px] tracking-widest text-white/30 uppercase">
-                        Searching...
-                      </div>
-                    )}
+                    {searchLoading && <div className="px-4 py-3 font-mono text-[10px] tracking-widest text-white/30 uppercase animate-pulse">Searching...</div>}
                     {!searchLoading && searchResults.length === 0 && searchQuery.trim() && (
-                      <div className="px-4 py-3 font-mono text-[10px] tracking-widest text-white/30 uppercase">
-                        No results found
-                      </div>
+                      <div className="px-4 py-3 font-mono text-[10px] tracking-widest text-white/30 uppercase">No results</div>
                     )}
                     {!searchLoading && searchResults.map((item) => (
                       <button key={item.id} onClick={() => handleResultClick(item)}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left group">
+                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left group border-b border-white/5 last:border-0">
                         <div className="w-9 h-12 flex-shrink-0 bg-white/5 rounded-sm overflow-hidden">
                           {item.poster_path
-                            ? <img src={`${IMG_BASE}/w92${item.poster_path}`} alt="" className="w-full h-full object-cover" />
+                            ? <img src={`${IMG_BASE}/w92${item.poster_path}`} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             : <div className="w-full h-full flex items-center justify-center text-white/20"><Film size={14} /></div>
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-mono text-[11px] tracking-wide text-white truncate group-hover:text-[#E50914] transition-colors">
+                          <p className="font-mono text-[11px] tracking-wide text-white truncate group-hover:text-[var(--color-accent)] transition-colors">
                             {item.title || item.name}
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-mono text-[9px] tracking-widest text-white/30 uppercase">
-                              {item.media_type === "tv" ? "TV" : "Film"}
-                            </span>
-                            {item.vote_average > 0 && (
-                              <span className="flex items-center gap-1 font-mono text-[9px] text-white/30">
-                                <Star size={8} /> {item.vote_average.toFixed(1)}
-                              </span>
-                            )}
-                          </div>
+                          <p className="font-mono text-[9px] tracking-widest text-white/30 uppercase mt-0.5">
+                            {item.media_type === "tv" ? "TV Show" : "Film"} {item.release_date ? `· ${item.release_date.slice(0,4)}` : ""}
+                          </p>
                         </div>
                       </button>
                     ))}
                     {searchResults.length > 0 && (
                       <button onClick={handleSearchSubmit}
-                        className="w-full px-4 py-2.5 border-t border-white/8 font-mono text-[10px] tracking-widest text-[#E50914] hover:bg-[#E50914]/8 transition-colors uppercase text-left">
-                        See all results for "{searchQuery}" →
+                        className="w-full px-4 py-2.5 border-t border-white/8 font-mono text-[10px] tracking-widest hover:bg-white/5 transition-colors uppercase text-left"
+                        style={{ color: accent }}>
+                        See all results →
                       </button>
                     )}
                   </motion.div>
@@ -238,10 +285,12 @@ export const Navbar = () => {
             {isAuth ? (
               <div className="relative hidden md:block" ref={dropdownRef}>
                 <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.12em] uppercase transition-all duration-150 ${
-                    isDropdownOpen ? "bg-[#E50914] text-black" : "text-white/60 hover:text-white hover:bg-white/8"
-                  }`}>
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${isDropdownOpen ? "bg-black/20 text-black" : "bg-white/15 text-white"}`}>
+                  className="flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.12em] uppercase transition-all duration-150"
+                  style={isDropdownOpen ? { backgroundColor: accent, color: accentText } : {}}
+                  onMouseEnter={e => { if (!isDropdownOpen) { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#fff"; }}}
+                  onMouseLeave={e => { if (!isDropdownOpen) { e.currentTarget.style.backgroundColor = ""; e.currentTarget.style.color = ""; }}}
+                >
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 bg-white/15">
                     {user?.name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <span className="max-w-[100px] truncate hidden lg:block">{user?.name?.toUpperCase()}</span>
@@ -254,25 +303,27 @@ export const Navbar = () => {
                       initial={{ opacity: 0, y: 6, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                      transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="absolute top-[calc(100%+8px)] right-0 w-52 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/60 overflow-hidden"
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-[calc(100%+8px)] right-0 w-52 bg-[#0e0e0e] border border-white/10 rounded-sm shadow-2xl shadow-black/60 overflow-hidden z-[200]"
                     >
                       <div className="px-4 py-3 border-b border-white/8">
                         <p className="font-mono text-[9px] tracking-[0.3em] text-white/30 uppercase">Signed in as</p>
                         <p className="font-mono text-[11px] tracking-wider text-white mt-0.5 truncate">{user?.email}</p>
                       </div>
                       <div className="py-1">
-                        <Link to="/favorites" onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-colors uppercase">
-                          <Heart size={12} /> Favorites
-                        </Link>
-                        <Link to="/history" onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-colors uppercase">
-                          <Clock size={12} /> History
-                        </Link>
+                        {[
+                          { to: "/favorites", icon: Heart, label: "Favorites" },
+                          { to: "/history",   icon: Clock, label: "History" },
+                        ].map(({ to, icon: Icon, label }) => (
+                          <Link key={to} to={to} onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-white/60 hover:text-white hover:bg-white/5 transition-colors uppercase">
+                            <Icon size={12} /> {label}
+                          </Link>
+                        ))}
                         {user?.role === "admin" && (
                           <Link to="/admin" onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-[#E50914] hover:bg-[#E50914]/10 transition-colors uppercase">
+                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] hover:bg-white/5 transition-colors uppercase"
+                            style={{ color: accent }}>
                             <Shield size={12} /> Admin Panel
                           </Link>
                         )}
@@ -289,10 +340,10 @@ export const Navbar = () => {
               </div>
             ) : (
               <div className="hidden md:flex items-center gap-2">
-                <Link to="/login" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors">
-                  Login
-                </Link>
-                <Link to="/register" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase bg-[#E50914] text-black hover:bg-white transition-colors rounded-sm font-bold">
+                <Link to="/login" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors">Login</Link>
+                <Link to="/register"
+                  className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase font-bold hover:opacity-90 transition-opacity rounded-sm"
+                  style={{ backgroundColor: accent, color: accentText }}>
                   Register
                 </Link>
               </div>
@@ -313,7 +364,6 @@ export const Navbar = () => {
           <>
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
               onClick={() => setIsMenuOpen(false)}
               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] touch-none"
             />
@@ -324,36 +374,35 @@ export const Navbar = () => {
               className="fixed top-0 right-0 bottom-0 w-[82vw] max-w-xs bg-[#0a0a0a] border-l border-white/10 z-[120] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
-                <span className="font-mono text-xs tracking-widest text-white/60 uppercase">Navigation</span>
-                <button onClick={() => setIsMenuOpen(false)}
-                  className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 rounded-sm transition-all">
-                  <X size={15} />
-                </button>
+                <span className="font-mono text-xs tracking-widest text-white/60 uppercase">Menu</span>
+                <div className="flex items-center gap-2">
+                  <ThemePicker />
+                  <button onClick={() => setIsMenuOpen(false)}
+                    className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 rounded-sm transition-all">
+                    <X size={15} />
+                  </button>
+                </div>
               </div>
 
               {/* Mobile search */}
               <div className="px-4 py-3 border-b border-white/8">
                 <form onSubmit={(e) => { handleSearchSubmit(e); setIsMenuOpen(false); }} className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 bg-white/8 border border-white/10 px-3 py-2 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#E50914]/40 rounded-sm transition-colors"
-                  />
-                  <button type="submit" className="w-9 h-9 flex items-center justify-center bg-[#E50914] text-black rounded-sm flex-shrink-0">
+                  <input type="text" placeholder="Search..."
+                    value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-white/8 border border-white/10 px-3 py-2 font-mono text-[11px] text-white outline-none placeholder-white/25 rounded-sm" />
+                  <button type="submit" className="w-9 h-9 flex items-center justify-center rounded-sm flex-shrink-0"
+                    style={{ backgroundColor: accent, color: accentText }}>
                     <Search size={14} />
                   </button>
                 </form>
-                {/* Mobile real-time results */}
                 {searchResults.length > 0 && (
                   <div className="mt-2 border border-white/8 rounded-sm overflow-hidden">
-                    {searchResults.slice(0, 4).map((item) => (
+                    {searchResults.slice(0,4).map((item) => (
                       <button key={item.id} onClick={() => { handleResultClick(item); setIsMenuOpen(false); }}
                         className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-0">
                         <div className="w-7 h-10 flex-shrink-0 bg-white/5 rounded-sm overflow-hidden">
                           {item.poster_path
-                            ? <img src={`${IMG_BASE}/w92${item.poster_path}`} alt="" className="w-full h-full object-cover" />
+                            ? <img src={`${IMG_BASE}/w92${item.poster_path}`} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             : <div className="w-full h-full flex items-center justify-center text-white/20"><Film size={10} /></div>
                           }
                         </div>
@@ -370,9 +419,8 @@ export const Navbar = () => {
               <div className="flex-1 overflow-y-auto py-2">
                 {navLinks.map((link) => (
                   <Link key={link.name} to={link.path} onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase transition-colors ${
-                      isActive(link.path) ? "text-[#E50914] bg-[#E50914]/8" : "text-white/60 hover:text-white hover:bg-white/5"
-                    }`}>
+                    className="flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase transition-colors"
+                    style={isActive(link.path) ? { color: accent, backgroundColor: `${accent}15` } : {}}>
                     <link.icon size={13} />
                     {link.name}
                   </Link>
@@ -386,17 +434,12 @@ export const Navbar = () => {
                       <p className="font-mono text-[9px] tracking-[0.3em] text-white/30 uppercase mb-1">Account</p>
                       <p className="font-mono text-xs text-white truncate">{user?.name}</p>
                     </div>
-                    <Link to="/favorites" onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                      <Heart size={13} /> Favorites
-                    </Link>
-                    <Link to="/history" onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                      <Clock size={13} /> History
-                    </Link>
+                    <Link to="/favorites" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors"><Heart size={13} /> Favorites</Link>
+                    <Link to="/history" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors"><Clock size={13} /> History</Link>
                     {user?.role === "admin" && (
                       <Link to="/admin" onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-[#E50914] hover:bg-[#E50914]/8 transition-colors">
+                        className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase hover:bg-white/5 transition-colors"
+                        style={{ color: accent }}>
                         <Shield size={13} /> Admin Panel
                       </Link>
                     )}
@@ -408,13 +451,11 @@ export const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <Link to="/login" onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">
-                      Login
-                    </Link>
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-white/60 hover:text-white hover:bg-white/5 transition-colors">Login</Link>
                     <div className="px-4 py-2">
                       <Link to="/register" onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center justify-center px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase bg-[#E50914] text-black font-bold hover:bg-white transition-colors rounded-sm">
+                        className="flex items-center justify-center px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase font-bold hover:opacity-90 transition-opacity rounded-sm"
+                        style={{ backgroundColor: accent, color: accentText }}>
                         Register
                       </Link>
                     </div>
