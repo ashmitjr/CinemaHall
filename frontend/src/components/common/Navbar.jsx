@@ -313,11 +313,12 @@ export const Navbar = () => {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110]"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] touch-none"
             />
             <motion.div
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
+              onClick={(e) => e.stopPropagation()}
               className="fixed top-0 right-0 bottom-0 w-[82vw] max-w-xs bg-[#0a0a0a] border-l border-white/10 z-[120] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
