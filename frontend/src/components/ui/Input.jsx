@@ -18,7 +18,7 @@ export const Input = ({
   const borderColor = error
     ? "#ff2d2d"
     : focused
-    ? "#e8ff00"
+    ? "var(--color-accent)"
     : hasVal
     ? "#333333"
     : "#1e1e1e";
@@ -26,7 +26,7 @@ export const Input = ({
   const labelColor = error
     ? "#ff2d2d"
     : focused
-    ? "#e8ff00"
+    ? "var(--color-accent)"
     : "#555555";
 
   return (
@@ -37,7 +37,7 @@ export const Input = ({
         <div className="flex items-center gap-3 mb-2">
           {index && (
             <span className="font-mono text-xs shrink-0"
-              style={{ color: focused ? "#e8ff00" : "#333333", transition: "color 0.05s" }}>
+              style={{ color: focused ? "var(--color-accent)" : "#333333", transition: "color 0.05s" }}>
               {index}
             </span>
           )}
@@ -63,7 +63,7 @@ export const Input = ({
           onFocus={e => { setFocused(true); props.onFocus?.(e); }}
           onBlur={e => { setFocused(false); props.onBlur?.(e); }}
           style={{
-            caretColor:  "#e8ff00",
+            caretColor:  "var(--color-accent)",
             padding:     variant === "underline" ? "10px 0" : "14px 16px",
           }}
           className="w-full bg-transparent font-mono text-sm tracking-wider text-white outline-none placeholder-[#2a2a2a]"
@@ -73,7 +73,7 @@ export const Input = ({
         {/* Focused cursor blink indicator — right side */}
         {focused && (
           <motion.div
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-[1px] h-5 bg-[#e8ff00]"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-[1px] h-5 bg-[var(--color-accent)]"
             animate={{ opacity: [1, 0, 1] }}
             transition={{ repeat: Infinity, duration: 0.75 }}
           />
@@ -81,7 +81,7 @@ export const Input = ({
 
         {/* Check dot when filled and not focused */}
         {hasVal && !focused && !error && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#e8ff00]" />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-[var(--color-accent)]" />
         )}
       </div>
 

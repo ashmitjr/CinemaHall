@@ -36,7 +36,7 @@ const PersonCard = ({ item }) => {
       onClick={() => navigate(`/person/${item.id}`)}
       className="group cursor-crosshair"
       style={{ border: "1px solid #1e1e1e", transition: "border-color 0.05s linear" }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = "#e8ff00"}
+      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--color-accent)"}
       onMouseLeave={e => e.currentTarget.style.borderColor = "#1e1e1e"}>
 
       {/* Avatar */}
@@ -240,15 +240,15 @@ const Search = () => {
 
             {/* Top meta row */}
             <div ref={headingRef} className="flex items-center gap-4 mb-6">
-              <div className="w-1 h-8 bg-[#e8ff00]" />
-              <span className="font-mono text-xs tracking-[0.5em] text-[#e8ff00]">SEARCH ARCHIVE</span>
+              <div className="w-1 h-8 bg-[var(--color-accent)]" />
+              <span className="font-mono text-xs tracking-[0.5em] text-[var(--color-accent)]">SEARCH ARCHIVE</span>
               <span className="font-mono text-xs text-[#1e1e1e]">/</span>
               <span className="font-mono text-xs tracking-widest text-[#333333]">DATABASE SCAN</span>
             </div>
 
             {/* Giant input */}
             <div className="relative mb-0"
-              style={{ borderBottom: `2px solid ${focused ? "#e8ff00" : "#1e1e1e"}`, transition: "border-color 0.05s linear" }}>
+              style={{ borderBottom: `2px solid ${focused ? "var(--color-accent)" : "#1e1e1e"}`, transition: "border-color 0.05s linear" }}>
               <input
                 ref={inputRef}
                 type="text"
@@ -261,7 +261,7 @@ const Search = () => {
                 className="w-full bg-transparent font-display uppercase text-white outline-none pb-5 placeholder-[#1e1e1e] tracking-wider"
                 style={{
                   fontSize: "clamp(2.8rem, 7vw, 7rem)",
-                  caretColor: "#e8ff00",
+                  caretColor: "var(--color-accent)",
                   lineHeight: 1,
                 }}
               />
@@ -299,7 +299,7 @@ const Search = () => {
                   className="font-mono text-xs tracking-[0.3em] px-5 py-4 relative"
                   style={{
                     color: activeType === t.key ? "#000" : "#555555",
-                    backgroundColor: activeType === t.key ? "#e8ff00" : "transparent",
+                    backgroundColor: activeType === t.key ? "var(--color-accent)" : "transparent",
                     transition: "background-color 0.05s, color 0.05s",
                   }}>
                   {t.label}
@@ -320,7 +320,7 @@ const Search = () => {
                   onClick={() => setActiveSort(s.key)}
                   className="font-mono text-xs tracking-[0.25em] px-4 py-4"
                   style={{
-                    color: activeSort === s.key ? "#e8ff00" : "#333333",
+                    color: activeSort === s.key ? "var(--color-accent)" : "#333333",
                     borderBottom: activeSort === s.key ? "2px solid #e8ff00" : "2px solid transparent",
                     transition: "color 0.05s, border-color 0.05s",
                   }}>
@@ -340,8 +340,8 @@ const Search = () => {
               onClick={() => setSelectedGenre(null)}
               className="font-mono text-[10px] tracking-widest px-4 py-2 shrink-0"
               style={{
-                border: `1px solid ${!selectedGenre ? "#e8ff00" : "#1e1e1e"}`,
-                color: !selectedGenre ? "#e8ff00" : "#444444",
+                border: `1px solid ${!selectedGenre ? "var(--color-accent)" : "#1e1e1e"}`,
+                color: !selectedGenre ? "var(--color-accent)" : "#444444",
                 transition: "all 0.05s",
               }}>
               ALL
@@ -351,8 +351,8 @@ const Search = () => {
                 onClick={() => setSelectedGenre(selectedGenre === g.id ? null : g.id)}
                 className="font-mono text-[10px] tracking-widest px-4 py-2 shrink-0"
                 style={{
-                  border: `1px solid ${selectedGenre === g.id ? "#e8ff00" : "#1e1e1e"}`,
-                  color: selectedGenre === g.id ? "#e8ff00" : "#444444",
+                  border: `1px solid ${selectedGenre === g.id ? "var(--color-accent)" : "#1e1e1e"}`,
+                  color: selectedGenre === g.id ? "var(--color-accent)" : "#444444",
                   transition: "all 0.05s",
                 }}>
                 {g.name.toUpperCase()}
@@ -412,7 +412,7 @@ const Search = () => {
                     </p>
                   )}
                   <button onClick={() => { setQuery(""); setSelectedGenre(null); }}
-                    className="font-mono text-xs tracking-[0.4em] text-[#555555] hover:text-[#e8ff00] mt-4"
+                    className="font-mono text-xs tracking-[0.4em] text-[#555555] hover:text-[var(--color-accent)] mt-4"
                     style={{ transition: "color 0.05s" }}>
                     ← CLEAR FILTERS
                   </button>

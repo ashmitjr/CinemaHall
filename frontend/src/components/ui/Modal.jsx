@@ -26,7 +26,7 @@ export const Modal = ({
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  const accentColor = variant === "danger" ? "#ff2d2d" : "#e8ff00";
+  const accentColor = variant === "danger" ? "#ff2d2d" : "var(--color-accent)";
 
   const sizes = {
     sm:   "max-w-md",

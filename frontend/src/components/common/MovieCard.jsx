@@ -7,7 +7,7 @@ const getYear = (date) => date?.split("-")[0] || null;
 
 const ratingColor = (r) => {
   if (!r || r === 0) return "#333333";
-  if (r >= 7.5) return "#e8ff00";
+  if (r >= 7.5) return "var(--color-accent)";
   if (r >= 5)   return "#f0f0f0";
   return "#ff2d2d";
 };
@@ -27,7 +27,7 @@ export const MovieCard = ({ item, type = "movie" }) => {
         whileTap={{ scale: 0.97 }}
         className="relative overflow-hidden flex flex-col"
         style={{ border: "1px solid #1a1a1a", transition: "border-color 0.05s linear" }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = "#e8ff00"}
+        onMouseEnter={e => e.currentTarget.style.borderColor = "var(--color-accent)"}
         onMouseLeave={e => e.currentTarget.style.borderColor = "#1a1a1a"}>
 
         {/* POSTER */}
@@ -77,7 +77,7 @@ export const MovieCard = ({ item, type = "movie" }) => {
         {/* INFO BAR */}
         <div className="p-3 flex flex-col gap-1.5"
           style={{ borderTop: "1px solid #141414", backgroundColor: "#060606" }}>
-          <h3 className="font-display text-lg uppercase leading-none text-white line-clamp-1 group-hover:text-[#e8ff00]"
+          <h3 className="font-display text-lg uppercase leading-none text-white line-clamp-1 group-hover:text-[var(--color-accent)]"
             style={{ transition: "color 0.05s linear" }}>
             {title}
           </h3>

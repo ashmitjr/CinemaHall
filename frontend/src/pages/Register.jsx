@@ -70,14 +70,14 @@ const Register = () => {
       {/* LEFT PANEL */}
       <div className="hidden lg:flex flex-col w-[44%] relative overflow-hidden"
         style={{ borderRight: "1px solid #141414" }}>
-        <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ backgroundColor: "#e8ff00" }} />
+        <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ backgroundColor: "var(--color-accent)" }} />
         <div className="absolute inset-0" style={{
           backgroundImage: "repeating-linear-gradient(90deg,#0e0e0e 0,#0e0e0e 1px,transparent 1px,transparent 56px),repeating-linear-gradient(0deg,#0e0e0e 0,#0e0e0e 1px,transparent 1px,transparent 56px)",
           opacity: 0.6,
         }} />
         <div className="relative z-10 flex flex-col h-full px-14 py-12">
           <div className="flex items-center gap-3 mb-auto">
-            <div className="w-2 h-2" style={{ backgroundColor: "#e8ff00" }} />
+            <div className="w-2 h-2" style={{ backgroundColor: "var(--color-accent)" }} />
             <span className="font-mono text-xs tracking-[0.5em]" style={{ color: "#444444" }}>CINEMA TRIAL</span>
           </div>
 
@@ -85,7 +85,7 @@ const Register = () => {
             <p className="font-mono text-[10px] tracking-[0.5em] mb-5" style={{ color: "#333333" }}>NEW MEMBER</p>
             <h1 className="font-display uppercase text-white leading-none mb-8"
               style={{ fontSize: "clamp(3rem, 5.5vw, 6rem)", lineHeight: 0.88 }}>
-              JOIN<br />THE<br /><span style={{ color: "#e8ff00" }}>ARCHIVE</span>
+              JOIN<br />THE<br /><span style={{ color: "var(--color-accent)" }}>ARCHIVE</span>
             </h1>
             <p className="font-mono text-xs leading-relaxed max-w-[260px]"
               style={{ color: "#444444", letterSpacing: "0.04em" }}>
@@ -113,7 +113,7 @@ const Register = () => {
 
         {/* Progress bar */}
         <div style={{ height: "2px", backgroundColor: "#111111", position: "relative" }}>
-          <motion.div style={{ height: "100%", backgroundColor: "#e8ff00", position: "absolute", left: 0, top: 0 }}
+          <motion.div style={{ height: "100%", backgroundColor: "var(--color-accent)", position: "absolute", left: 0, top: 0 }}
             animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
         </div>
 
@@ -152,8 +152,8 @@ const Register = () => {
               {success && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="mb-6 px-4 py-3 font-mono text-xs tracking-widest flex items-center gap-3"
-                  style={{ border: "1px solid #e8ff00", borderLeft: "3px solid #e8ff00", color: "#e8ff00" }}>
-                  <motion.div className="w-2 h-2" style={{ backgroundColor: "#e8ff00" }}
+                  style={{ border: "1px solid #e8ff00", borderLeft: "3px solid #e8ff00", color: "var(--color-accent)" }}>
+                  <motion.div className="w-2 h-2" style={{ backgroundColor: "var(--color-accent)" }}
                     animate={{ opacity: [1,0,1] }} transition={{ repeat: Infinity, duration: 0.5 }} />
                   ACCOUNT CREATED — REDIRECTING TO LOGIN
                 </motion.div>
@@ -164,15 +164,15 @@ const Register = () => {
               {fields.map(f => (
                 <div key={f.id}>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="font-mono text-xs" style={{ color: focused === f.id ? "#e8ff00" : "#252525" }}>{f.idx}</span>
+                    <span className="font-mono text-xs" style={{ color: focused === f.id ? "var(--color-accent)" : "#252525" }}>{f.idx}</span>
                     <label className="font-mono text-xs tracking-[0.4em]"
-                      style={{ color: focused === f.id ? "#e8ff00" : "#555555" }}>{f.label}</label>
+                      style={{ color: focused === f.id ? "var(--color-accent)" : "#555555" }}>{f.label}</label>
                     <span className="font-mono ml-auto" style={{ fontSize: "9px", color: "#2a2a2a", letterSpacing: "0.3em" }}>
                       {f.hint}
                     </span>
                   </div>
                   <div style={{
-                    borderBottom: `2px solid ${focused === f.id ? "#e8ff00" : f.value ? "#333" : "#1e1e1e"}`,
+                    borderBottom: `2px solid ${focused === f.id ? "var(--color-accent)" : f.value ? "#333" : "#1e1e1e"}`,
                     transition: "border-color 0.05s", position: "relative",
                   }}>
                     <input type={f.type} required value={f.value}
@@ -180,10 +180,10 @@ const Register = () => {
                       onChange={e => f.set(e.target.value)}
                       onFocus={() => setFocused(f.id)} onBlur={() => setFocused(null)}
                       className="w-full bg-transparent font-mono text-sm text-white outline-none py-3 tracking-wider"
-                      style={{ caretColor: "#e8ff00" }} />
+                      style={{ caretColor: "var(--color-accent)" }} />
                     {f.value && focused !== f.id && (
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2"
-                        style={{ backgroundColor: "#e8ff00" }} />
+                        style={{ backgroundColor: "var(--color-accent)" }} />
                     )}
                   </div>
                 </div>
@@ -193,9 +193,9 @@ const Register = () => {
                 whileTap={ready ? { scale: 0.98 } : {}}
                 className="w-full py-4 font-mono text-xs tracking-[0.5em] uppercase mt-2"
                 style={{
-                  backgroundColor: ready ? "#e8ff00" : "transparent",
+                  backgroundColor: ready ? "var(--color-accent)" : "transparent",
                   color:           ready ? "#000000" : "#333333",
-                  border:          `1px solid ${ready ? "#e8ff00" : "#1e1e1e"}`,
+                  border:          `1px solid ${ready ? "var(--color-accent)" : "#1e1e1e"}`,
                   transition:      "all 0.08s",
                   cursor:          ready ? "crosshair" : "default",
                 }}>
@@ -216,7 +216,7 @@ const Register = () => {
               <Link to="/login"
                 className="font-mono text-xs tracking-widest px-4 py-2"
                 style={{ border: "1px solid #1e1e1e", color: "#555555", transition: "all 0.05s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "#e8ff00"; e.currentTarget.style.color = "#e8ff00"; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--color-accent)"; e.currentTarget.style.color = "var(--color-accent)"; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = "#1e1e1e"; e.currentTarget.style.color = "#555555"; }}>
                 SIGN IN →
               </Link>
@@ -226,7 +226,7 @@ const Register = () => {
         </div>
 
         <div className="px-8 py-4 flex items-center gap-4" style={{ borderTop: "1px solid #141414" }}>
-          <motion.div className="w-1.5 h-1.5" style={{ backgroundColor: "#e8ff00" }}
+          <motion.div className="w-1.5 h-1.5" style={{ backgroundColor: "var(--color-accent)" }}
             animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }} />
           <span className="font-mono text-[10px] tracking-[0.4em]" style={{ color: "#333333" }}>REGISTRATION OPEN</span>
           <span className="font-mono text-[10px] ml-auto" style={{ color: "#1e1e1e" }}>CINEMA TRIAL v1.0</span>

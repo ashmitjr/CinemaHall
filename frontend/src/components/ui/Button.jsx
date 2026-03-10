@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 const VARIANTS = {
   primary: {
-    bg:          "#e8ff00",
+    bg:          "var(--color-accent)",
     color:       "#000000",
     border:      "1px solid #e8ff00",
     hoverBg:     "#ffffff",

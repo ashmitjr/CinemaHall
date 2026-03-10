@@ -9,13 +9,13 @@ const VARIANTS = {
   },
   accent: {
     border:  "1px solid #e8ff00",
-    color:   "#e8ff00",
+    color:   "var(--color-accent)",
     bg:      "transparent",
   },
   "accent-fill": {
     border:  "1px solid #e8ff00",
     color:   "#000000",
-    bg:      "#e8ff00",
+    bg:      "var(--color-accent)",
   },
   danger: {
     border:  "1px solid #ff2d2d",

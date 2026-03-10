@@ -22,7 +22,7 @@ import { getYear } from "../utils/helpers";
 gsap.registerPlugin(ScrollTrigger);
 
 /* ─── Helpers ────────────────────────────────────── */
-const ratingColor = (r) => r >= 7.5 ? "#e8ff00" : r >= 5 ? "#f0f0f0" : "#ff2d2d";
+const ratingColor = (r) => r >= 7.5 ? "var(--color-accent)" : r >= 5 ? "#f0f0f0" : "#ff2d2d";
 
 const MetaBlock = ({ label, value, accent }) => (
   <div className="flex flex-col gap-1 pr-8"
@@ -309,7 +309,7 @@ const MovieDetail = () => {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             className="fixed bottom-8 right-8 z-50 font-mono text-xs tracking-widest px-5 py-3"
-            style={{ border: "1px solid #e8ff00", backgroundColor: "#060606", color: "#e8ff00" }}>
+            style={{ border: "1px solid #e8ff00", backgroundColor: "#060606", color: "var(--color-accent)" }}>
             {favMsg}
           </motion.div>
         )}
@@ -338,17 +338,17 @@ const MovieDetail = () => {
           <div className="absolute inset-0 z-[1]"
             style={{ background: "linear-gradient(to right, rgba(6,6,6,0.7) 0%, transparent 55%)" }} />
           {/* Yellow accent left strip */}
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#e8ff00] z-[2]" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--color-accent)] z-[2]" />
           {/* Back button */}
           <button onClick={() => navigate(-1)}
-            className="absolute top-24 left-8 z-[2] font-mono text-xs tracking-[0.4em] text-[#555555] hover:text-[#e8ff00] flex items-center gap-3"
+            className="absolute top-24 left-8 z-[2] font-mono text-xs tracking-[0.4em] text-[#555555] hover:text-[var(--color-accent)] flex items-center gap-3"
             style={{ transition: "color 0.05s" }}>
             ← BACK
           </button>
           {/* Type badge on backdrop */}
           <div className="absolute top-24 right-8 z-[2]">
             <span className="font-mono text-[10px] tracking-[0.5em] px-3 py-2"
-              style={{ border: "1px solid #e8ff00", color: "#e8ff00" }}>
+              style={{ border: "1px solid #e8ff00", color: "var(--color-accent)" }}>
               {isTV ? "TV SERIES" : "FILM"}
             </span>
           </div>
@@ -387,8 +387,8 @@ const MovieDetail = () => {
                   disabled={favBusy}
                   className="w-full mt-4 font-mono text-xs tracking-[0.35em] py-4 relative overflow-hidden"
                   style={{
-                    backgroundColor: isFav ? "#e8ff00" : "#0e0e0e",
-                    border: `1px solid ${isFav ? "#e8ff00" : "#2a2a2a"}`,
+                    backgroundColor: isFav ? "var(--color-accent)" : "#0e0e0e",
+                    border: `1px solid ${isFav ? "var(--color-accent)" : "#2a2a2a"}`,
                     color: isFav ? "#000" : "#888888",
                     transition: "all 0.05s linear",
                   }}>
@@ -451,7 +451,7 @@ const MovieDetail = () => {
 
                 {/* Tagline */}
                 {movie.tagline && (
-                  <p className="font-mono text-sm tracking-[0.3em] text-[#e8ff00] mb-8 uppercase">
+                  <p className="font-mono text-sm tracking-[0.3em] text-[var(--color-accent)] mb-8 uppercase">
                     "{movie.tagline}"
                   </p>
                 )}
@@ -486,7 +486,7 @@ const MovieDetail = () => {
                     {movie.genres.map(g => (
                       <span key={g.id} className="font-mono text-xs tracking-widest px-4 py-2 text-[#888888]"
                         style={{ border: "1px solid #1e1e1e", transition: "all 0.05s" }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor="#e8ff00"; e.currentTarget.style.color="#e8ff00"; }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor="var(--color-accent)"; e.currentTarget.style.color="var(--color-accent)"; }}
                         onMouseLeave={e => { e.currentTarget.style.borderColor="#1e1e1e"; e.currentTarget.style.color="#888888"; }}>
                         {g.name.toUpperCase()}
                       </span>

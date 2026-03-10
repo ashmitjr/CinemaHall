@@ -122,7 +122,7 @@ const CarouselSection = ({ index, title, items, type, loading }) => (
 /* ─── Hero Rating ────────────────────────────────── */
 const HeroRating = ({ rating }) => {
   const num = parseFloat(rating);
-  const color = num >= 7.5 ? "#e8ff00" : num >= 5 ? "#f0f0f0" : "#ff2d2d";
+  const color = num >= 7.5 ? "var(--color-accent)" : num >= 5 ? "#f0f0f0" : "#ff2d2d";
   return (
     <span className="font-mono text-sm font-bold" style={{ color }}>
       {num.toFixed(1)}
@@ -266,7 +266,7 @@ const Home = () => {
       <div className="h-screen bg-[#060606] flex flex-col items-center justify-center gap-6">
         <motion.div className="w-16 h-16 border-2 border-[#1e1e1e] relative"
           animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-          <div className="absolute inset-1 border border-[#e8ff00]" />
+          <div className="absolute inset-1 border border-[var(--color-accent)]" />
         </motion.div>
         <p className="font-mono text-xs tracking-[0.6em] text-[#444444]">LOADING ARCHIVE</p>
       </div>
@@ -328,7 +328,7 @@ const Home = () => {
             style={{ background: "linear-gradient(to right, rgba(6,6,6,0.85) 0%, transparent 60%)" }} />
 
           {/* Film strip accent — left edge */}
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#e8ff00] z-[2]" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--color-accent)] z-[2]" />
 
           {/* Hero content */}
           <div className="relative z-[2] h-full flex flex-col justify-end px-8 md:px-16 pb-16 md:pb-24 max-w-[1800px] mx-auto">
@@ -344,7 +344,7 @@ const Home = () => {
                 <div className="flex flex-wrap items-center gap-4 mb-6">
                   {/* Type badge */}
                   <span className="font-mono text-[10px] tracking-[0.5em] px-3 py-1.5"
-                    style={{ border: "1px solid #e8ff00", color: "#e8ff00" }}>
+                    style={{ border: "1px solid #e8ff00", color: "var(--color-accent)" }}>
                     {heroType === "tv" ? "TV SERIES" : "FILM"}
                   </span>
                   {/* Rating */}
@@ -384,7 +384,7 @@ const Home = () => {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={() => navigate(`/movie/${heroType}/${hero?.id}`)}
-                    className="font-mono text-sm tracking-[0.3em] uppercase bg-[#e8ff00] text-black px-8 py-4 hover:bg-white"
+                    className="font-mono text-sm tracking-[0.3em] uppercase bg-[var(--color-accent)] text-black px-8 py-4 hover:bg-white"
                     style={{ transition: "background-color 0.05s linear" }}>
                     VIEW RECORD →
                   </motion.button>
@@ -394,7 +394,7 @@ const Home = () => {
                     disabled={favLoading}
                     className="font-mono text-sm tracking-[0.3em] uppercase text-[#888888] px-8 py-4"
                     style={{ border: "1px solid #2a2a2a", transition: "color 0.05s, border-color 0.05s" }}
-                    onMouseEnter={e => { e.currentTarget.style.color="#fff"; e.currentTarget.style.borderColor="#e8ff00"; }}
+                    onMouseEnter={e => { e.currentTarget.style.color="#fff"; e.currentTarget.style.borderColor="var(--color-accent)"; }}
                     onMouseLeave={e => { e.currentTarget.style.color="#888888"; e.currentTarget.style.borderColor="#2a2a2a"; }}>
                     {favLoading ? "SAVING..." : "+ ADD TO VAULT"}
                   </motion.button>
@@ -410,7 +410,7 @@ const Home = () => {
                   className="h-[2px] transition-all duration-150"
                   style={{
                     width: i === heroIdx ? "32px" : "12px",
-                    backgroundColor: i === heroIdx ? "#e8ff00" : "#2a2a2a",
+                    backgroundColor: i === heroIdx ? "var(--color-accent)" : "#2a2a2a",
                   }}
                 />
               ))}
@@ -440,7 +440,7 @@ const Home = () => {
               "TRENDING THIS WEEK", "POPULAR FILMS", "CRITICALLY ACCLAIMED",
               "NOW PLAYING", "UPCOMING RELEASES", "TOP RATED SERIES"
             ]).flat().map((t, i) => (
-              <span key={i}>{t} <span className="text-[#e8ff00] mx-2">·</span></span>
+              <span key={i}>{t} <span className="text-[var(--color-accent)] mx-2">·</span></span>
             ))}
           </motion.div>
         </div>
@@ -529,7 +529,7 @@ const EditorialBreak = () => {
         <div className="border border-[#1a1a1a] p-10 md:p-16 flex flex-col md:flex-row items-start md:items-end justify-between gap-8"
           style={{ borderLeft: "3px solid #e8ff00" }}>
           <div>
-            <p className="font-mono text-[10px] tracking-[0.6em] text-[#e8ff00] mb-4">
+            <p className="font-mono text-[10px] tracking-[0.6em] text-[var(--color-accent)] mb-4">
               CINEMA TRIAL / ARCHIVE
             </p>
             <h3 className="font-display text-white uppercase leading-[0.85]"
@@ -544,7 +544,7 @@ const EditorialBreak = () => {
               ["JWT",     "SECURED VAULT"],
             ].map(([v, l]) => (
               <div key={l} className="flex items-baseline gap-4">
-                <span className="font-display text-3xl text-[#e8ff00] leading-none">{v}</span>
+                <span className="font-display text-3xl text-[var(--color-accent)] leading-none">{v}</span>
                 <span className="font-mono text-xs tracking-widest text-[#444444]">{l}</span>
               </div>
             ))}

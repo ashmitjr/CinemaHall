@@ -10,7 +10,7 @@ export const PageLoader = () => (
       <div className="flex items-end gap-[3px]" style={{ height: 40 }}>
         {[0,1,2,3,4,5,6].map(i => (
           <motion.div key={i}
-            style={{ width: 3, backgroundColor: i === 3 ? "#e8ff00" : "#222222" }}
+            style={{ width: 3, backgroundColor: i === 3 ? "var(--color-accent)" : "#222222" }}
             animate={{ height: [8, 36, 8] }}
             transition={{ repeat: Infinity, duration: 0.9, delay: i * 0.08, ease: "easeInOut" }}
           />
@@ -21,7 +21,7 @@ export const PageLoader = () => (
           LOADING ARCHIVE
         </span>
         <div style={{ width: 120, height: 1, backgroundColor: "#111111", position: "relative", overflow: "hidden" }}>
-          <motion.div style={{ height: "100%", backgroundColor: "#e8ff00", position: "absolute", left: 0 }}
+          <motion.div style={{ height: "100%", backgroundColor: "var(--color-accent)", position: "absolute", left: 0 }}
             animate={{ x: ["-100%", "100%"] }}
             transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
             initial={{ width: "60%" }}
@@ -38,7 +38,7 @@ export const Loader = ({ label = "LOADING" }) => (
     <div className="flex items-end gap-[3px]" style={{ height: 28 }}>
       {[0,1,2,3,4].map(i => (
         <motion.div key={i}
-          style={{ width: 2, backgroundColor: i === 2 ? "#e8ff00" : "#1e1e1e" }}
+          style={{ width: 2, backgroundColor: i === 2 ? "var(--color-accent)" : "#1e1e1e" }}
           animate={{ height: [6, 24, 6] }}
           transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.1, ease: "easeInOut" }}
         />

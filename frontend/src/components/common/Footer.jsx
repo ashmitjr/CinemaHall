@@ -31,7 +31,7 @@ const linkStyle = {
     textTransform: "uppercase",
   },
   hover: {
-    color: "#e8ff00",
+    color: "var(--color-accent)",
     transform: "translateX(4px)",
   },
 };
@@ -80,7 +80,7 @@ export const Footer = () => (
           style={{ borderRight: "1px solid #151515" }}
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-2 shrink-0" style={{ backgroundColor: "#e8ff00" }} />
+            <div className="w-2 h-2 shrink-0" style={{ backgroundColor: "var(--color-accent)" }} />
             <span
               className="font-mono text-xs tracking-[0.5em]"
               style={{ color: "#6f6f6f" }}
@@ -98,7 +98,7 @@ export const Footer = () => (
           >
             CINEMA
             <br />
-            <span style={{ color: "#e8ff00" }}>TRIAL</span>
+            <span style={{ color: "var(--color-accent)" }}>TRIAL</span>
           </h2>
 
           <p
