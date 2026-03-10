@@ -96,9 +96,11 @@ export const Navbar = () => {
   };
 
   const isActive = (path) => {
-    const [p] = path.split("?");
-    if (p === "/") return location.pathname === "/";
-    return location.pathname.startsWith(p);
+    if (path === "/") return location.pathname === "/";
+    const [p, q] = path.split("?");
+    if (!location.pathname.startsWith(p)) return false;
+    if (q) return location.search === "?" + q;
+    return location.pathname.startsWith(p) && !location.search;
   };
 
   const navLinks = [
@@ -118,8 +120,8 @@ export const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-1 group mr-2">
-            <span className="font-mono text-white font-bold tracking-[0.12em] text-sm uppercase group-hover:text-[#e8ff00] transition-colors duration-200">Cinema</span>
-            <span className="font-mono text-[#e8ff00] font-bold tracking-[0.12em] text-sm uppercase">Trial</span>
+            <span className="font-mono text-white font-bold tracking-[0.12em] text-sm uppercase group-hover:text-[#E50914] transition-colors duration-200">Cinema</span>
+            <span className="font-mono text-[#E50914] font-bold tracking-[0.12em] text-sm uppercase">Trial</span>
           </Link>
 
           <div className="hidden lg:block h-5 w-px bg-white/10 mx-1" />
@@ -130,7 +132,7 @@ export const Navbar = () => {
               <Link key={link.name} to={link.path}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.15em] uppercase transition-all duration-150 ${
                   isActive(link.path)
-                    ? "bg-[#e8ff00] text-black font-bold"
+                    ? "bg-[#E50914] text-black font-bold"
                     : "text-white/50 hover:text-white hover:bg-white/8"
                 }`}>
                 <link.icon size={11} />
@@ -161,7 +163,7 @@ export const Navbar = () => {
                         placeholder="Search films, shows..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/8 border border-white/15 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#e8ff00]/40 transition-colors rounded-sm"
+                        className="w-full bg-white/8 border border-white/15 px-3 py-1.5 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#E50914]/40 transition-colors rounded-sm"
                       />
                     </motion.form>
                   )}
@@ -169,7 +171,7 @@ export const Navbar = () => {
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   className={`w-8 h-8 flex items-center justify-center rounded-sm transition-all duration-150 flex-shrink-0 ${
-                    isSearchOpen ? "bg-[#e8ff00] text-black" : "text-white/50 hover:text-white hover:bg-white/8"
+                    isSearchOpen ? "bg-[#E50914] text-black" : "text-white/50 hover:text-white hover:bg-white/8"
                   }`}>
                   {isSearchOpen ? <X size={14} /> : <Search size={14} />}
                 </button>
@@ -205,7 +207,7 @@ export const Navbar = () => {
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-mono text-[11px] tracking-wide text-white truncate group-hover:text-[#e8ff00] transition-colors">
+                          <p className="font-mono text-[11px] tracking-wide text-white truncate group-hover:text-[#E50914] transition-colors">
                             {item.title || item.name}
                           </p>
                           <div className="flex items-center gap-2 mt-0.5">
@@ -223,7 +225,7 @@ export const Navbar = () => {
                     ))}
                     {searchResults.length > 0 && (
                       <button onClick={handleSearchSubmit}
-                        className="w-full px-4 py-2.5 border-t border-white/8 font-mono text-[10px] tracking-widest text-[#e8ff00] hover:bg-[#e8ff00]/8 transition-colors uppercase text-left">
+                        className="w-full px-4 py-2.5 border-t border-white/8 font-mono text-[10px] tracking-widest text-[#E50914] hover:bg-[#E50914]/8 transition-colors uppercase text-left">
                         See all results for "{searchQuery}" →
                       </button>
                     )}
@@ -237,7 +239,7 @@ export const Navbar = () => {
               <div className="relative hidden md:block" ref={dropdownRef}>
                 <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className={`flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-sm font-mono text-[10px] tracking-[0.12em] uppercase transition-all duration-150 ${
-                    isDropdownOpen ? "bg-[#e8ff00] text-black" : "text-white/60 hover:text-white hover:bg-white/8"
+                    isDropdownOpen ? "bg-[#E50914] text-black" : "text-white/60 hover:text-white hover:bg-white/8"
                   }`}>
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${isDropdownOpen ? "bg-black/20 text-black" : "bg-white/15 text-white"}`}>
                     {user?.name?.[0]?.toUpperCase() || "U"}
@@ -270,7 +272,7 @@ export const Navbar = () => {
                         </Link>
                         {user?.role === "admin" && (
                           <Link to="/admin" onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-[#e8ff00] hover:bg-[#e8ff00]/10 transition-colors uppercase">
+                            className="flex items-center gap-3 px-4 py-2.5 font-mono text-[10px] tracking-[0.15em] text-[#E50914] hover:bg-[#E50914]/10 transition-colors uppercase">
                             <Shield size={12} /> Admin Panel
                           </Link>
                         )}
@@ -290,7 +292,7 @@ export const Navbar = () => {
                 <Link to="/login" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors">
                   Login
                 </Link>
-                <Link to="/register" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase bg-[#e8ff00] text-black hover:bg-white transition-colors rounded-sm font-bold">
+                <Link to="/register" className="px-4 py-1.5 font-mono text-[10px] tracking-[0.15em] uppercase bg-[#E50914] text-black hover:bg-white transition-colors rounded-sm font-bold">
                   Register
                 </Link>
               </div>
@@ -337,9 +339,9 @@ export const Navbar = () => {
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 bg-white/8 border border-white/10 px-3 py-2 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#e8ff00]/40 rounded-sm transition-colors"
+                    className="flex-1 bg-white/8 border border-white/10 px-3 py-2 font-mono text-[11px] tracking-wider text-white outline-none placeholder-white/25 focus:border-[#E50914]/40 rounded-sm transition-colors"
                   />
-                  <button type="submit" className="w-9 h-9 flex items-center justify-center bg-[#e8ff00] text-black rounded-sm flex-shrink-0">
+                  <button type="submit" className="w-9 h-9 flex items-center justify-center bg-[#E50914] text-black rounded-sm flex-shrink-0">
                     <Search size={14} />
                   </button>
                 </form>
@@ -369,7 +371,7 @@ export const Navbar = () => {
                 {navLinks.map((link) => (
                   <Link key={link.name} to={link.path} onClick={() => setIsMenuOpen(false)}
                     className={`flex items-center gap-3 px-5 py-3.5 font-mono text-[11px] tracking-[0.2em] uppercase transition-colors ${
-                      isActive(link.path) ? "text-[#e8ff00] bg-[#e8ff00]/8" : "text-white/60 hover:text-white hover:bg-white/5"
+                      isActive(link.path) ? "text-[#E50914] bg-[#E50914]/8" : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}>
                     <link.icon size={13} />
                     {link.name}
@@ -394,7 +396,7 @@ export const Navbar = () => {
                     </Link>
                     {user?.role === "admin" && (
                       <Link to="/admin" onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-[#e8ff00] hover:bg-[#e8ff00]/8 transition-colors">
+                        className="flex items-center gap-3 px-5 py-3 font-mono text-[11px] tracking-[0.2em] uppercase text-[#E50914] hover:bg-[#E50914]/8 transition-colors">
                         <Shield size={13} /> Admin Panel
                       </Link>
                     )}
@@ -412,7 +414,7 @@ export const Navbar = () => {
                     </Link>
                     <div className="px-4 py-2">
                       <Link to="/register" onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center justify-center px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase bg-[#e8ff00] text-black font-bold hover:bg-white transition-colors rounded-sm">
+                        className="flex items-center justify-center px-4 py-2.5 font-mono text-[11px] tracking-[0.2em] uppercase bg-[#E50914] text-black font-bold hover:bg-white transition-colors rounded-sm">
                         Register
                       </Link>
                     </div>
