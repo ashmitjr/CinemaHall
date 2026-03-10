@@ -17,7 +17,9 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
+    const hadToken = !!store.getState().auth.accessToken;
+
+    if (error.response?.status === 401 && !original._retry && hadToken) {
       original._retry = true;
       try {
         const { data } = await axios.post(
@@ -25,8 +27,9 @@ api.interceptors.response.use(
           {},
           { withCredentials: true }
         );
-        store.dispatch(setAccessToken(data.data.accessToken));
-        original.headers.Authorization = `Bearer ${data.data.accessToken}`;
+        const newToken = data.data.accessToken;
+        store.dispatch(setAccessToken(newToken));
+        original.headers.Authorization = `Bearer ${newToken}`;
         return api(original);
       } catch {
         store.dispatch(logout());
