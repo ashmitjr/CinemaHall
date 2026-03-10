@@ -9,7 +9,10 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = store.getState().auth.accessToken;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    config._sentWithToken = true;
+  }
   return config;
 });
 
@@ -17,9 +20,9 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    const hadToken = !!store.getState().auth.accessToken;
 
-    if (error.response?.status === 401 && !original._retry && hadToken) {
+    // Only attempt refresh if this request was sent WITH a token
+    if (error.response?.status === 401 && !original._retry && original._sentWithToken) {
       original._retry = true;
       try {
         const { data } = await axios.post(
@@ -36,6 +39,7 @@ api.interceptors.response.use(
         window.location.href = "/login";
       }
     }
+
     return Promise.reject(error);
   }
 );
